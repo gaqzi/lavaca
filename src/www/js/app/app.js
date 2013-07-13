@@ -34,7 +34,8 @@ define(function(require) {
     this.router.add({
       '/': [ExampleController, 'home'],
       '/lang': [ExampleController, 'lang'],
-      '/test': [ExampleController, 'test']
+      '/test': [ExampleController, 'test'],
+      '/databind': [ExampleController, 'databind']
     });
     stateModel.set('lang', localStore.get('lang') || 'en_US');
     //initialize translations

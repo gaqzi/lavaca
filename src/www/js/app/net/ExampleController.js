@@ -1,6 +1,8 @@
 define(function(require) {
 
   var ExampleView = require('app/ui/views/ExampleView'),
+      DataBindPageView = require('app/ui/views/pageviews/DataBindPageView'),
+      DataBindModel = require('app/models/DataBindModel'),
       TestView = require('app/ui/views/TestView'),
       BaseController = require('app/net/BaseController'),
       Translation = require('lavaca/util/Translation'),
@@ -28,6 +30,14 @@ define(function(require) {
       return this
         .view(null, ExampleView, model)
         .then(this.updateState(model, 'Home Page', params.url));
+    },
+    databind: function(params, model) {
+      if (!model) {
+        model = {};
+      }
+      return this
+        .view(null, DataBindPageView, new DataBindModel())
+        .then(this.updateState(model, 'DataBindTest', params.url));
     },
     /**
      * Switches the user to a specific language

@@ -115,6 +115,8 @@ define(function(require) {
      */
     this.childViewEventMap = {};
 
+    this.boundData = {};
+
     this
       .on('rendersuccess', this.onRenderSuccess)
       .on('rendererror', this.onRenderError);
@@ -159,6 +161,25 @@ define(function(require) {
      * @type Boolean
      */
     autoRender: false,
+
+    bindData: function(bindings) {
+      this.boundData = bindings;
+      for(selector in bindings) {
+        this.model.on('change', bindings[selector], this.updateViewData.bind(this))
+      }
+    },
+    //TODO: protect against child view data updating
+    updateViewData: function(e) {
+      var attribute = e.attribute,
+          boundData = this.boundData,
+          value = e.value;
+      for (selector in boundData) {
+        if (boundData[selector] === attribute) {
+          var elements = this.el.find(selector);
+          elements.html(e.value);
+        }
+      }
+    },
     /**
      * Renders the view using its template and model
      * @method render
@@ -388,7 +409,8 @@ define(function(require) {
     clearModelEvents: function() {
       var type,
         callback,
-        dotIndex;
+        dotIndex,
+        boundData = this.boundData;
       if (this.eventMap
         && this.eventMap.model
         && this.model
@@ -404,6 +426,9 @@ define(function(require) {
           }
           this.model.off(type, callback);
         }
+      }
+      for(selector in boundData) {
+        this.model.off('change', boundData[selector], this.updateViewData.bind(this))
       }
     },
     /**
