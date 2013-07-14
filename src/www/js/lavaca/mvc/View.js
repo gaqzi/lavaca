@@ -164,22 +164,35 @@ define(function(require) {
 
     bindData: function(bindings) {
       this.boundData = bindings;
-      for(selector in bindings) {
-        this.model.on('change', bindings[selector], this.updateViewData.bind(this))
+      for(var i= 0, l=bindings.length; i < l; i++) {
+        this.model.on('change', bindings[i], this.updateViewData.bind(this))
       }
+      this.model.on('fetchSuccess', this.triggerBindingChange, this);
+    },
+    triggerBindingChange: function(e) {
+      this.model.attributes.each(function(key, item) {
+        this.model.forceAttributeEvent('change', key, item);
+      }, this);
     },
     //TODO: protect against child view data updating
     updateViewData: function(e) {
       var attribute = e.attribute,
           boundData = this.boundData,
           value = e.value;
-      for (selector in boundData) {
-        if (boundData[selector] === attribute) {
-          var elements = this.el.find(selector);
-          elements.html(e.value);
+      var selector = '[data-bind="' + attribute + '"]';
+      var elements = this.el.find(selector);
+      if (elements.length) {
+        for (selector in this.childViewMap) {
+          elements.each(function(index, element) {
+            var $element = $(element);
+            if ($element.parents(selector).length === 0) {
+              $element.html(value);
+            }
+          });
         }
       }
     },
+
     /**
      * Renders the view using its template and model
      * @method render
@@ -427,9 +440,10 @@ define(function(require) {
           this.model.off(type, callback);
         }
       }
-      for(selector in boundData) {
-        this.model.off('change', boundData[selector], this.updateViewData.bind(this))
+      for(var i= 0, l=bindings.length; i < l; i++) {
+        this.model.off('change', bindings[i], this.updateViewData.bind(this))
       }
+      this.model.off('fetchSuccess', this.triggerBindingChange, this);
     },
     /**
      * Checks for strings in the event map to bind events to this automatically

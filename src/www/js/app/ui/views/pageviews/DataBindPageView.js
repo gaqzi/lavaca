@@ -4,6 +4,7 @@ define(function(require) {
   require('rdust!templates/databind');
   var Config = require('lavaca/util/Config');
   var Translation = require('lavaca/util/Translation');
+  var TestDataView = require('app/ui/views/TestDataView');
 
 /**
  * @class app.ui.views.pageviews.DataBindPageView
@@ -13,17 +14,14 @@ define(function(require) {
   var DataBindPageView = BaseView.extend(function(){
     BaseView.apply(this, arguments);
 
-    this.mapEvent({
-      model: {
-        'fetchSuccess': 'onModelFetch'
+    this.mapChildView({
+      '.test-data-view': {
+        TView: TestDataView,
+        model: this.model
       }
     });
-
-    this.bindData({
-      '.book-title': 'title',
-      '.book-author': 'author',
-      '.book-published': 'published'
-    });
+    //model attribute
+    this.bindData(['title', 'author', 'published']);
   },{
   /**
    * @field {String} template

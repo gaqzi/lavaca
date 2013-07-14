@@ -1,33 +1,35 @@
 define(function(require) {
 
   var View = require('lavaca/mvc/View');
-  require('rdust!templates/<%=objectName %>');
+  require('rdust!templates/testdata');
   var Config = require('lavaca/util/Config');
   var Translation = require('lavaca/util/Translation');
 
 /**
- * @class <%= fqn %>
+ * @class app.ui.views.TestDataView
  * @super lavaca.mvc.View
- * <%= className %> view type
+ * TestDataView view type
  */
-  var <%= className %> = View.extend(function(){
+  var TestDataView = View.extend(function(){
     View.apply(this, arguments);
+
+    this.render();
   },{
   /**
    * @field {String} template
-  * @default '<%=objectName %>'
+  * @default 'testdata'
   * The name of the template used by the view
   */
-  template: 'templates/<%=objectName %>',
+  template: 'templates/testdata',
   /**
   * @field {String} className
-  * @default '<%=objectName %>'
+  * @default 'testdata'
   * A class name added to the view container
   */
-  className: '<%=objectName %>'
+  className: 'testdata'
 
   });
 
-  return <%= className %>;
+  return TestDataView;
 
 });

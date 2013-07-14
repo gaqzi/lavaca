@@ -217,6 +217,13 @@ define(function(require) {
         }
       });
     },
+
+    forceAttributeEvent: function(event, attribute, value) {
+      this.trigger(event, {
+        attribute: attribute,
+        value: value === UNDEFINED ? this.get(attribute) : value
+      });
+    },
     /**
      * Determines whether or not this model has a named attribute
      * @method has
@@ -227,6 +234,7 @@ define(function(require) {
     has: function(attribute) {
       return this.get(attribute) !== null;
     },
+
     /**
      * The name of the ID attribute
      * @property id
