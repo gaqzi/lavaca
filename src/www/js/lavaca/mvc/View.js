@@ -8,7 +8,8 @@ define(function(require) {
     Promise = require('lavaca/util/Promise'),
     log = require('lavaca/util/log'),
     uuid = require('lavaca/util/uuid'),
-    clone = require('mout/lang/deepClone');
+    clone = require('mout/lang/deepClone'),
+    size = require('mout/object/size');
 
   /**
    * Base View Class
@@ -182,15 +183,27 @@ define(function(require) {
       var selector = '[data-bind="' + attribute + '"]';
       var elements = this.el.find(selector);
       if (elements.length) {
-        for (selector in this.childViewMap) {
-          elements.each(function(index, element) {
-            var $element = $(element);
-            if ($element.parents(selector).length === 0) {
-              $element.html(value);
-            }
-          });
+        if (size(this.childViewMap)) {
+          for (selector in this.childViewMap) {
+            this.insertData(elements, value, selector);
+          }
+        } else {
+           this.insertData(elements, value);
         }
       }
+    },
+
+    insertData: function(elements, value, selector) {
+      elements.each(function(index, element) {
+        var $element = $(element);
+        if (selector) {
+          if ($element.parents(selector).length === 0) {
+            $element.html(value);
+          }
+        } else {
+          $element.html(value);
+        }
+      });
     },
 
     /**

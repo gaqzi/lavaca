@@ -12,7 +12,7 @@ define(function(require) {
  */
   var TestDataView = View.extend(function(){
     View.apply(this, arguments);
-
+    //this.bindData(['title']);
     this.render();
   },{
   /**
