@@ -453,8 +453,8 @@ define(function(require) {
           this.model.off(type, callback);
         }
       }
-      for(var i= 0, l=bindings.length; i < l; i++) {
-        this.model.off('change', bindings[i], this.updateViewData.bind(this))
+      for(var i= 0, l=boundData.length; i < l; i++) {
+        this.model.off('change', boundData[i], this.updateViewData.bind(this))
       }
       this.model.off('fetchSuccess', this.triggerBindingChange, this);
     },
