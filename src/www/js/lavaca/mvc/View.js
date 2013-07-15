@@ -165,8 +165,8 @@ define(function(require) {
 
     bindData: function(bindings) {
       this.boundData = bindings;
-      for(var i= 0, l=bindings.length; i < l; i++) {
-        this.model.on('change', bindings[i], this.updateViewData.bind(this))
+      for(attribute in bindings) {
+        this.model.on('change', attribute, this.updateViewData.bind(this))
       }
       this.model.on('fetchSuccess', this.triggerBindingChange, this);
     },
@@ -175,17 +175,16 @@ define(function(require) {
         this.model.forceAttributeEvent('change', key, item);
       }, this);
     },
-    //TODO: protect against child view data updating
     updateViewData: function(e) {
       var attribute = e.attribute,
           boundData = this.boundData,
           value = e.value;
-      var selector = '[data-bind="' + attribute + '"]';
+      var selector = '[data-bind="' + boundData[attribute] + '"]';
       var elements = this.el.find(selector);
       if (elements.length) {
         if (size(this.childViewMap)) {
-          for (selector in this.childViewMap) {
-            this.insertData(elements, value, selector);
+          for (cViewSelector in this.childViewMap) {
+            this.insertData(elements, value, cViewSelector);
           }
         } else {
            this.insertData(elements, value);
@@ -193,11 +192,11 @@ define(function(require) {
       }
     },
 
-    insertData: function(elements, value, selector) {
+    insertData: function(elements, value, cViewSelector) {
       elements.each(function(index, element) {
         var $element = $(element);
-        if (selector) {
-          if ($element.parents(selector).length === 0) {
+        if (cViewSelector) {
+          if ($element.parents(cViewSelector).length === 0) {
             $element.html(value);
           }
         } else {

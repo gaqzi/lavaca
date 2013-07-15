@@ -21,7 +21,11 @@ define(function(require) {
       }
     });
     //model attribute
-    this.bindData(['title', 'author', 'published']);
+    this.bindData({
+      title: 'title',
+      author: 'author',
+      published: 'published'
+    });
   },{
   /**
    * @field {String} template
@@ -34,12 +38,7 @@ define(function(require) {
   * @default 'databind'
   * A class name added to the view container
   */
-  className: 'databind',
-
-  onModelFetch: function(e) {
-    this.redraw();
-    console.log(this.model);
-  }
+  className: 'databind'
 
   });
 
