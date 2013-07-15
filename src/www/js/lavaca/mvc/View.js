@@ -163,46 +163,90 @@ define(function(require) {
      */
     autoRender: false,
 
-    bindData: function(bindings) {
-      this.boundData = bindings;
-      for(attribute in bindings) {
-        this.model.on('change', attribute, this.updateViewData.bind(this))
-      }
-      this.model.on('fetchSuccess', this.triggerBindingChange, this);
+
+    //data-bind:visible
+    //parser for data-bind syntax
+
+    parseBinding: function($element) {
+      var dataBind = $element.attr('data-bind');
+      var dataBindArr = this.buildBindingArray(dataBind);
+      //trying to figure out where to go from here
+      console.log(dataBindArr);
+      return dataBind;
     },
-    triggerBindingChange: function(e) {
-      this.model.attributes.each(function(key, item) {
-        this.model.forceAttributeEvent('change', key, item);
-      }, this);
-    },
-    updateViewData: function(e) {
-      var attribute = e.attribute,
-          boundData = this.boundData,
-          value = e.value;
-      var selector = '[data-bind="' + boundData[attribute] + '"]';
-      var elements = this.el.find(selector);
-      if (elements.length) {
-        if (size(this.childViewMap)) {
-          for (cViewSelector in this.childViewMap) {
-            this.insertData(elements, value, cViewSelector);
-          }
+
+    buildBindingArray: function(dataBind) {
+      var values = dataBind.split(',');
+      var bindArr = [];
+      for (var i= 0, l = values.length; i < l; i++) {
+        var bindingParts = values[i].split(':');
+        if (bindingParts.length === 1) {
+          bindArr.push({ directive: 'text', attribute: bindingParts[0]});
         } else {
-           this.insertData(elements, value);
+          bindArr.push({ directive: bindingParts[0], attribute: bindingParts[1]});
         }
+      }
+      return bindArr;
+    },
+
+    createModelBindings: function() {
+      for (attribute in this.boundData) {
+        this.model.on('change', attribute, this.updateViewData.bind(this))
       }
     },
 
-    insertData: function(elements, value, cViewSelector) {
-      elements.each(function(index, element) {
+    bindData: function() {
+      //search for data-bind attribute elements
+      var bindings = {};
+      var $elements = this.el.find('[data-bind]');
+      $elements.each(function(index, element) {
         var $element = $(element);
-        if (cViewSelector) {
-          if ($element.parents(cViewSelector).length === 0) {
-            $element.html(value);
-          }
+        var binding = this.parseBinding($element);
+        if (bindings.hasOwnProperty(binding)) {
+          bindings[binding].push($element);
         } else {
+          bindings[binding] = [$element];
+        }
+      }.bind(this));
+
+      this.boundData = bindings;
+
+      this.createModelBindings();
+
+      this.model.on('fetchSuccess', this.triggerBindingChange, this);
+    },
+
+    triggerBindingChange: function(e) {
+      for (attributeName in this.boundData) {
+        this.updateViewData({ attribute: attributeName, value: this.model.get(attributeName)});
+      }
+    },
+
+    updateViewData: function(e) {
+      var attributeName = e.attribute,
+          boundData = this.boundData,
+          value = e.value;
+
+        for (var i = 0, l = boundData[attributeName].length; i < l; i++) {
+          var $element = boundData[attributeName][i];
+          if (size(this.childViewMap)) {
+            for (cViewSelector in this.childViewMap) {
+              this.insertData($element, value, cViewSelector);
+            }
+          } else {
+            this.insertData($element, value);
+          }
+        }
+    },
+
+    insertData: function($element, value, cViewSelector) {
+      if (cViewSelector) {
+        if ($element.parents(cViewSelector).length === 0) {
           $element.html(value);
         }
-      });
+      } else {
+        $element.html(value);
+      }
     },
 
     /**
@@ -741,6 +785,9 @@ define(function(require) {
       this.el.attr('data-view-id', this.id);
       this.hasRendered = true;
       this.createSelectorHash();
+      if (this.model && this.model instanceof Model){
+        this.bindData();
+      }
     },
 
     /**

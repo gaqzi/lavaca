@@ -20,12 +20,6 @@ define(function(require) {
         model: this.model
       }
     });
-    //model attribute
-    this.bindData({
-      title: 'title',
-      author: 'author',
-      published: 'published'
-    });
   },{
   /**
    * @field {String} template
