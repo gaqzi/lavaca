@@ -199,21 +199,24 @@ define(function(require) {
       //search for data-bind attribute elements
       var bindings = {};
       var $elements = this.el.find('[data-bind]');
-      $elements.each(function(index, element) {
-        var $element = $(element);
-        var binding = this.parseBinding($element);
-        if (bindings.hasOwnProperty(binding)) {
-          bindings[binding].push($element);
-        } else {
-          bindings[binding] = [$element];
-        }
-      }.bind(this));
+      if ($elements.length > 0) {
+        $elements.each(function(index, element) {
+          var $element = $(element);
+          var binding = this.parseBinding($element);
+          if (bindings.hasOwnProperty(binding)) {
+            bindings[binding].push($element);
+          } else {
+            bindings[binding] = [$element];
+          }
+        }.bind(this));
 
-      this.boundData = bindings;
+        this.boundData = bindings;
 
-      this.createModelBindings();
+        this.createModelBindings();
 
-      this.model.on('fetchSuccess', this.triggerBindingChange, this);
+        this.model.on('fetchSuccess', this.triggerBindingChange, this);
+      }
+
     },
 
     triggerBindingChange: function(e) {
